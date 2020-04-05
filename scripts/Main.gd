@@ -10,8 +10,13 @@ onready var cursor = $Cursor
 onready var cursor_tween = $Cursor/Tween
 onready var timer = $Timer
 
+enum LEVEL_STATE { Idle, FirstClick, SecondClick }
+
 class Level:
 	var map = []
+	var state = LEVEL_STATE.Idle
+	var first = Vector2(-1, -1)
+	var second = Vector2(-1, -1)
 	
 	func _init():
 		for y in range(0, 8):
@@ -140,6 +145,32 @@ class Level:
 		var update = drop_down()
 		fill_at_top()
 		return update
+		
+	func set_state_first(x, y):
+		state = LEVEL_STATE.FirstClick
+		first = Vector2(x, y)
+		pass
+		
+	func set_state_second(x, y):
+		state = LEVEL_STATE.SecondClick
+		second = Vector2(x, y)
+		pass
+		
+	func set_state_idle():
+		state = LEVEL_STATE.Idle
+		first = Vector2(-1, -1)
+		second = Vector2(-1, -1)
+		pass
+		
+	func click(x, y):
+		match state:
+			LEVEL_STATE.Idle:
+				set_state_first(x, y)
+			LEVEL_STATE.FirstClick:
+				set_state_second(x, y)
+			LEVEL_STATE.SecondClick:
+				set_state_idle()
+		pass
 	
 func get_item_location(x, y):
 	return Vector2(x * 64 + LEFT_MARGIN, y * 64 + TOP_MARGIN)
@@ -210,6 +241,7 @@ func _input(event):
 		var x: int = (event.position.x - LEFT_MARGIN) / 64
 		var y: int = (event.position.y - TOP_MARGIN) / 64
 		cursor_on(x, y)
+		level.click(x, y)
 
 func on_timer_tick():
 	if level.process():
