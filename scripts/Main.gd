@@ -9,15 +9,19 @@ var jewelTextures = []
 onready var cursor = $Cursor
 onready var cursor_tween = $Cursor/Tween
 onready var timer = $Timer
+onready var score_label = $ScoreLabel
 
 enum LEVEL_STATE { Idle, FirstClick, SecondClick }
 
 class Level:
 	var map = []
 	var state = LEVEL_STATE.Idle
+	var score = 0
 	var first = Vector2(-1, -1)
 	var second = Vector2(-1, -1)
 	
+	const scores = [ 10, 15, 20, 30, 40, 50, 70, 100, 150, 500 ]
+
 	func _init():
 		for y in range(0, 8):
 			var row = []
@@ -41,11 +45,23 @@ class Level:
 				var item = m[y][x]
 				text += str(item) + ' '
 			print(text)
+			
+	func get_random_item():
+		var result = -1
+		var val = randi() % 100
+		if val > 99:
+			result = 9
+		else:
+			if val > 90:
+				result = 8
+			else:
+				result = randi() % 8
+		return result
 		
 	func initialise():
 		for y in range(0, 8):
 			for x in range(0, 8):
-				map[y][x] = randi() % 9
+				map[y][x] = get_random_item()
 		# print_map(map)
 				
 	func look_right(x, y):
@@ -77,21 +93,19 @@ class Level:
 		return count
 		
 	func delete_items_right(x, y, count):
-		# print('delete items right ' + str(x) + ' ' + str(y) + ' ' + str(count))
 		for lookX in range(x, x + count):
 			if lookX >= 0 and lookX < 8:
 				var item = map[y][lookX]
-				# if item == -1:
-				#	print('deleting ' + str(lookX) + ' ' + str(y))
+				if item != -1:
+					process_score(item)
 				map[y][lookX] = -1
 		
 	func delete_items_down(x, y, count):
-		# print('delete items down ' + str(x) + ' ' + str(y) + ' ' + str(count))
 		for lookY in range(y, y + count):
 			if lookY >= 0 and lookY < 8:
 				var item = map[lookY][x]
-				# if item == -1:
-				#	print('deleting ' + str(x) + ' ' + str(lookY))
+				if item != -1:
+					process_score(item)
 				map[lookY][x] = -1
 		
 	func look(right_map, down_map):
@@ -133,9 +147,12 @@ class Level:
 		return result
 		
 	func fill_at_top():
+		var result = false
 		for x in range(0, 8):
 			if map[0][x] == -1:
-				map[0][x] = randi() % 8
+				map[0][x] = get_random_item()
+				result = true
+		return result
 				
 	func process():
 		var right_map = make_map_array(0)
@@ -143,24 +160,25 @@ class Level:
 		look(right_map, down_map)
 		delete_items(right_map, down_map)
 		var update = drop_down()
-		fill_at_top()
+		if fill_at_top():
+			update = true
 		return update
+		
+	func process_score(item):
+		score += scores[item]
 		
 	func set_state_first(x, y):
 		state = LEVEL_STATE.FirstClick
 		first = Vector2(x, y)
-		pass
 		
 	func set_state_second(x, y):
 		state = LEVEL_STATE.SecondClick
 		second = Vector2(x, y)
-		pass
 		
 	func set_state_idle():
 		state = LEVEL_STATE.Idle
 		first = Vector2(-1, -1)
 		second = Vector2(-1, -1)
-		pass
 		
 	func click(x, y):
 		match state:
@@ -170,7 +188,6 @@ class Level:
 				set_state_second(x, y)
 			LEVEL_STATE.SecondClick:
 				set_state_idle()
-		pass
 	
 func get_item_location(x, y):
 	return Vector2(x * 64 + LEFT_MARGIN, y * 64 + TOP_MARGIN)
@@ -210,6 +227,7 @@ func _ready():
 	var jewelTexture7 = load("res://images/Gems_01_64x64_022.png")
 	var jewelTexture8 = load("res://images/Gems_01_64x64_024.png")
 	var jewelTexture9 = load("res://images/Gems_01_64x64_026.png")
+	var jewelTexture10 = load("res://images/Gems_01_64x64_014.png")
 
 	jewelTextures.append(jewelTexture1)
 	jewelTextures.append(jewelTexture2)
@@ -220,6 +238,7 @@ func _ready():
 	jewelTextures.append(jewelTexture7)
 	jewelTextures.append(jewelTexture8)
 	jewelTextures.append(jewelTexture9)
+	jewelTextures.append(jewelTexture10)
 
 	level = Level.new()
 	level.initialise()
@@ -242,6 +261,13 @@ func _input(event):
 		var y: int = (event.position.y - TOP_MARGIN) / 64
 		cursor_on(x, y)
 		level.click(x, y)
+		
+	if Input.is_action_pressed("ui_reset"):
+		level.initialise()
+		update()
+		
+func _process(delta):
+	score_label.text = 'Score: ' + str(level.score)
 
 func on_timer_tick():
 	if level.process():
