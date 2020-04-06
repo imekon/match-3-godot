@@ -167,6 +167,13 @@ class Level:
 	func process_score(item):
 		score += scores[item]
 		
+	func swap_items():
+		var item1 = map[first.y][first.x]
+		var item2 = map[second.y][second.x]
+		map[first.y][first.x] = item2
+		map[second.y][second.x] = item1
+		set_state_idle()
+		
 	func set_state_first(x, y):
 		state = LEVEL_STATE.FirstClick
 		first = Vector2(x, y)
@@ -174,6 +181,7 @@ class Level:
 	func set_state_second(x, y):
 		state = LEVEL_STATE.SecondClick
 		second = Vector2(x, y)
+		swap_items()
 		
 	func set_state_idle():
 		state = LEVEL_STATE.Idle
