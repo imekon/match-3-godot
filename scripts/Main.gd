@@ -168,34 +168,40 @@ class Level:
 		score += scores[item]
 		
 	func swap_items():
+		if first.x == -1 || first.y == -1 || second.x == -1 || second.y == -1:
+			return false
+			
 		var item1 = map[first.y][first.x]
 		var item2 = map[second.y][second.x]
 		map[first.y][first.x] = item2
 		map[second.y][second.x] = item1
 		set_state_idle()
+		return true
 		
 	func set_state_first(x, y):
 		state = LEVEL_STATE.FirstClick
 		first = Vector2(x, y)
+		return false
 		
 	func set_state_second(x, y):
 		state = LEVEL_STATE.SecondClick
 		second = Vector2(x, y)
-		swap_items()
+		return swap_items()
 		
 	func set_state_idle():
 		state = LEVEL_STATE.Idle
 		first = Vector2(-1, -1)
 		second = Vector2(-1, -1)
+		return false
 		
 	func click(x, y):
 		match state:
 			LEVEL_STATE.Idle:
-				set_state_first(x, y)
+				return set_state_first(x, y)
 			LEVEL_STATE.FirstClick:
-				set_state_second(x, y)
+				return set_state_second(x, y)
 			LEVEL_STATE.SecondClick:
-				set_state_idle()
+				return set_state_idle()
 	
 func get_item_location(x, y):
 	return Vector2(x * 64 + LEFT_MARGIN, y * 64 + TOP_MARGIN)
@@ -268,7 +274,8 @@ func _input(event):
 		var x: int = (event.position.x - LEFT_MARGIN) / 64
 		var y: int = (event.position.y - TOP_MARGIN) / 64
 		cursor_on(x, y)
-		level.click(x, y)
+		if level.click(x, y):
+			update()
 		
 	if Input.is_action_pressed("ui_reset"):
 		level.initialise()
