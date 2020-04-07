@@ -5,11 +5,13 @@ const TOP_MARGIN = 40
 
 var level
 var jewelTextures = []
+var count_down_time
 
 onready var cursor = $Cursor
 onready var cursor_tween = $Cursor/Tween
 onready var timer = $Timer
 onready var score_label = $ScoreLabel
+onready var count_down_bar = $ProgressBar
 
 func get_item_location(x, y):
 	return Vector2(x * 64 + LEFT_MARGIN, y * 64 + TOP_MARGIN)
@@ -70,6 +72,8 @@ func _ready():
 	cursor_off()
 	
 	timer.start()
+	
+	count_down_time = 100
 
 func _draw():
 	for y in range(0, 8):
@@ -92,6 +96,13 @@ func _input(event):
 		
 func _process(delta):
 	score_label.text = 'Score: ' + str(level.score)
+	
+	count_down_time -= delta
+	if count_down_time > 100:
+		count_down_time = 100
+	if count_down_time < 0:
+		count_down_time = 0
+	count_down_bar.value = count_down_time
 
 func on_timer_tick():
 	if level.process():

@@ -38,4 +38,12 @@ text = "Score: 0"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+margin_left = 210.0
+margin_top = 559.0
+margin_right = 789.0
+margin_bottom = 587.0
+value = 100.0
+percent_visible = false
 [connection signal="timeout" from="Timer" to="." method="on_timer_tick"]

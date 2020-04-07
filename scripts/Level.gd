@@ -8,6 +8,7 @@ class Level:
 	var score = 0
 	var first = Vector2(-1, -1)
 	var second = Vector2(-1, -1)
+	var can_still_play = true
 	
 	const scores = [ 10, 15, 20, 30, 40, 50, 70, 100, 150, 500 ]
 
@@ -27,13 +28,13 @@ class Level:
 			m.append(row)
 		return m
 		
-	func print_map(m):
-		for y in range(0, 8):
-			var text = ''
-			for x in range(0, 8):
-				var item = m[y][x]
-				text += str(item) + ' '
-			print(text)
+#	func print_map(m):
+#		for y in range(0, 8):
+#			var text = ''
+#			for x in range(0, 8):
+#				var item = m[y][x]
+#				text += str(item) + ' '
+#			print(text)
 			
 	func get_random_item():
 		var result = -1
