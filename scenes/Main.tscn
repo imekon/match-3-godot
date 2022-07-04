@@ -46,4 +46,5 @@ margin_right = 789.0
 margin_bottom = 587.0
 value = 100.0
 percent_visible = false
+
 [connection signal="timeout" from="Timer" to="." method="on_timer_tick"]

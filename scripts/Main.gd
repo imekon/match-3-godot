@@ -64,8 +64,7 @@ func _ready():
 	jewelTextures.append(jewelTexture9)
 	jewelTextures.append(jewelTexture10)
 
-	var LEVEL = load("res://scripts/Level.gd")
-	level = LEVEL.Level.new()
+	level = Level.new()
 	level.initialise()
 	
 	# cursor_on(0, 0)
